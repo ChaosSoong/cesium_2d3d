@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Use correct character set. -->
+  <meta charset="utf-8">
+  <!-- Tell IE to use the latest, best version. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <title>二三维一体化</title>
+  <link rel = "stylesheet" type="text/css" src="css.css">
+  <script src="../Build/Cesium/Cesium.js"></script>
+  <style>
+      @import url(../Build/Cesium/Widgets/widgets.css);
+	  @import url(css.css)
+      html, body {
+          width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      }
+	  .left {
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    background: #112233;
+}
+.right {
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    background: #112233;
+}
+  </style>
+</head>
+<body>
+  <div id="map3d" class="left"></div>
+  <div id="map2d" class="right"></div> 
+  <script>
+    var viewer = new Cesium.Viewer('map3d',{
+            scene3DOnly : true
+            });
+	var viewer2d = new Cesium.Viewer('map2d',{
+            baseLayerPicker: false,
+            geocoder: false,
+            sceneModePicker: false,
+            homeButton: false,
+			sceneMode: Cesium.SceneMode.SCENE2D
+            });
+	var scene = viewer.scene;
+	var scene2d = viewer2d.scene;
+	var camera = new Cesium.Camera(scene);		
+	var camera2d = new Cesium.Camera(scene2d);	
+    scene.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(116.0995827937, 38.9847048112, 180.0)
+    });	
+	viewer.camera.moveEnd.addEventListener(function(moveEndPosition){
+	
+	//获取视图中心点	
+	var result = viewer.camera.pickEllipsoid(new Cesium.Cartesian2 ( viewer.canvas.clientWidth /2 , viewer.canvas.clientHeight / 2));
+	var curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(result);
+	var lon = curPosition.longitude*180/Math.PI;
+	var lat = curPosition.latitude*180/Math.PI;
+	var height=curPosition.height;
+	console.log(lon+"..."+lat+"..."+height);
+	//设置中心点
+	viewer2d.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),       
+    });
+	});
+  </script>
+</body>
+</html>
